@@ -14,10 +14,10 @@ public class TaskList {
         mTasks=new LinkedHashMap<>();
     }
 
-    public void addCrime(Task task){
+    public void addTask(Task task){
         mTasks.put(task.getId(),task);
     }
-    public void removeCrime(Task task){
+    public void removeTask(Task task){
         mTasks.remove(task.getId());
     }
 
@@ -27,10 +27,10 @@ public class TaskList {
 
         return instance;
     }
-    public List<Task> getCrimes() {
+    public List<Task> getTasks() {
         return new ArrayList<>(mTasks.values());
     }
-    public Task getCrime(UUID id) {
+    public Task getTask(UUID id) {
         return mTasks.get(id);
     }
 }
