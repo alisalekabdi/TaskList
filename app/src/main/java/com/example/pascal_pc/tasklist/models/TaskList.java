@@ -30,5 +30,7 @@ public class TaskList {
     public List<Task> getCrimes() {
         return new ArrayList<>(mTasks.values());
     }
-
+    public Task getCrime(UUID id) {
+        return mTasks.get(id);
+    }
 }
