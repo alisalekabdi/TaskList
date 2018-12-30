@@ -45,7 +45,7 @@ public class TaskDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         UUID taskId= (UUID) getArguments().getSerializable(EXRTA_TASK_ID);
-        mTask=TaskList.getInstance().getCrime(taskId);
+        mTask=TaskList.getInstance().getTask(taskId);
     }
 
     @Override

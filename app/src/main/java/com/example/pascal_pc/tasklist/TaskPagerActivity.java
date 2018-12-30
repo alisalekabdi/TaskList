@@ -27,13 +27,13 @@ public class TaskPagerActivity extends AppCompatActivity {
             public Fragment getItem(int i) {
                 switch (i){
                     case 0:
-                    return null;
+                    return AllTaskFragment.newInstance();
 
                     case 1:
-                        return null;
+                        return DoneTaskFragmen.newInstance();
 
                     case 2:
-                        return null;
+                        return UnDoneTaskFragmen.newInstance();
                 }
                 return null;
             }
