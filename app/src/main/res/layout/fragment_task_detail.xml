@@ -104,35 +104,25 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <Button
-            android:id="@+id/edite_btn"
+        <CheckBox
+            android:id="@+id/done_checkBox"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:drawableLeft="@android:drawable/ic_menu_edit"
-            android:text="Edite"
-            android:textAllCaps="false"
-            android:textStyle="bold" />
+            android:background="@android:color/darker_gray"
+            android:text="isDone" />
 
         <Button
             android:id="@+id/delete_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="@android:color/darker_gray"
             android:drawableLeft="@android:drawable/ic_menu_delete"
             android:text="Delete"
             android:textAllCaps="false"
             android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/done_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:drawableLeft="@android:drawable/checkbox_on_background"
-            android:text="Done"
-            android:textAllCaps="false"
-            android:textStyle="bold" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

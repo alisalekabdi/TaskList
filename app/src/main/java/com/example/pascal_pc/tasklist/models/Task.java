@@ -9,10 +9,11 @@ public class Task {
     private String mTitle;
     private Date mDate;
     private String mDescription;
-    private boolean mDone=false;
+    private boolean mDone;
 
     public Task() {
         mId =UUID.randomUUID();
+        mDate=new Date();
     }
 
     public String getTitle() {
@@ -50,4 +51,6 @@ public class Task {
     public UUID getId() {
         return mId;
     }
+
+
 }

@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,11 +26,14 @@ import java.util.List;
  */
 public abstract class TaskListFragment extends Fragment {
 
+    private static final String EXTRA_POSITION ="com.example.pascal_pc.tasklist.position";
+
     private RecyclerView mRecyclerView;
     private ImageView mMsgImgView;
     private TaskListFragment.TaskAdapter mTaskAdapter;
     protected FloatingActionButton mAddFab;
-//    public static TaskListFragment newInstance() {
+    private int mCurrentPosition;
+//    public static TaskListFragment newInstance(int position) {
 //
 //        Bundle args = new Bundle();
 //
@@ -39,6 +43,12 @@ public abstract class TaskListFragment extends Fragment {
 //    }
 
     public TaskListFragment(){}
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mCurrentPosition=getArguments().getInt(EXTRA_POSITION);
+    }
 
     @SuppressLint({"RestrictedApi", "WrongViewCast"})
     @Override
@@ -58,7 +68,7 @@ public abstract class TaskListFragment extends Fragment {
                 startActivity(intent);
             }
         });
-        if(getCurrentPosition()==0){
+        if(mCurrentPosition==0){
             mAddFab.setVisibility(View.VISIBLE);
         }else {
             mAddFab.setVisibility(View.GONE);
@@ -112,6 +122,7 @@ public abstract class TaskListFragment extends Fragment {
                     // start activity detail
                     Intent intent =TaskDetailActivity.newIntent(getActivity(),mTask.getId());
                     startActivity(intent);
+                    mTaskAdapter.notifyDataSetChanged();
                 }
             });
         }
