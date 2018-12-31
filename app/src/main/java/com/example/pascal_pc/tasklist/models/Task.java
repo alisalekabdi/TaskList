@@ -9,11 +9,10 @@ public class Task {
     private String mTitle;
     private Date mDate;
     private String mDescription;
-    private boolean mDone;
+    private boolean mDone=false;
 
-    public Task(String title) {
+    public Task() {
         mId =UUID.randomUUID();
-        mTitle=title;
     }
 
     public String getTitle() {

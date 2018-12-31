@@ -1,12 +1,12 @@
 package com.example.pascal_pc.tasklist;
 
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 
 public class TaskPagerActivity extends AppCompatActivity {
 
@@ -27,13 +27,13 @@ public class TaskPagerActivity extends AppCompatActivity {
             public Fragment getItem(int i) {
                 switch (i){
                     case 0:
-                    return AllTaskFragment.newInstance();
+                    return AllTaskFragment.newInstance(0);
 
                     case 1:
-                        return DoneTaskFragmen.newInstance();
+                        return DoneTaskFragmen.newInstance(1);
 
                     case 2:
-                        return UnDoneTaskFragmen.newInstance();
+                        return UnDoneTaskFragmen.newInstance(2);
                 }
                 return null;
             }

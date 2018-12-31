@@ -3,10 +3,6 @@ package com.example.pascal_pc.tasklist;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.example.pascal_pc.tasklist.models.Task;
 import com.example.pascal_pc.tasklist.models.TaskList;
@@ -18,9 +14,12 @@ import java.util.List;
  */
 public class AllTaskFragment extends TaskListFragment {
 
-    public static AllTaskFragment newInstance() {
+    private static final String EXTRA_POSITON = "com.example.pascal_pc.tasklist.position";
+
+    public static AllTaskFragment newInstance(int position) {
 
         Bundle args = new Bundle();
+        args.getInt(EXTRA_POSITON,position);
 
         AllTaskFragment fragment = new AllTaskFragment();
         fragment.setArguments(args);
@@ -33,9 +32,14 @@ public class AllTaskFragment extends TaskListFragment {
     }
 
     @Override
+    public int getCurrentPosition() {
+        return getArguments().getInt(EXTRA_POSITON);
+    }
+
+    @Override
     public List<Task> getTasks() {
-        TaskList taskList = TaskList.getInstance();
-        return taskList.getAllTasks();
+//        TaskList taskList = TaskList.getInstance();
+        return TaskList.getInstance().getAllTasks();
     }
 
 

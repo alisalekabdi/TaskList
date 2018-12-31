@@ -1,6 +1,8 @@
 package com.example.pascal_pc.tasklist;
 
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -10,10 +12,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.pascal_pc.tasklist.models.Task;
-import com.example.pascal_pc.tasklist.models.TaskList;
 
 import java.util.List;
 
@@ -24,6 +26,7 @@ import java.util.List;
 public abstract class TaskListFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
+    private ImageView mMsgImgView;
     private TaskListFragment.TaskAdapter mTaskAdapter;
     protected FloatingActionButton mAddFab;
 //    public static TaskListFragment newInstance() {
@@ -37,6 +40,7 @@ public abstract class TaskListFragment extends Fragment {
 
     public TaskListFragment(){}
 
+    @SuppressLint({"RestrictedApi", "WrongViewCast"})
     @Override
     public  View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -46,12 +50,19 @@ public abstract class TaskListFragment extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         mAddFab=view.findViewById(R.id.add_fab);
+        mMsgImgView=view.findViewById(R.id.img_empty_list_btn);
         mAddFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent=CreateNewTaskActivity.newIntent(getActivity());
+                startActivity(intent);
             }
         });
+        if(getCurrentPosition()==0){
+            mAddFab.setVisibility(View.VISIBLE);
+        }else {
+            mAddFab.setVisibility(View.GONE);
+        }
 
         updateUI();
         return view;
@@ -64,7 +75,15 @@ public abstract class TaskListFragment extends Fragment {
     }
 
     private void updateUI() {
+
         List<Task> tasks = getTasks();
+
+        if(getCurrentPosition()==0&&getTasks().size()==0){
+            mMsgImgView.setVisibility(View.VISIBLE);
+        }else{
+            mMsgImgView.setVisibility(View.GONE);
+        }
+
         if (mTaskAdapter == null) {
             mTaskAdapter = new TaskAdapter(tasks);
             mRecyclerView.setAdapter(mTaskAdapter);
@@ -72,7 +91,7 @@ public abstract class TaskListFragment extends Fragment {
             mTaskAdapter.notifyDataSetChanged();
         }
     }
-
+    public abstract int getCurrentPosition();
     public abstract List<Task> getTasks() ;
 
     private class TaskHolder extends RecyclerView.ViewHolder {
@@ -91,14 +110,17 @@ public abstract class TaskListFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     // start activity detail
+                    Intent intent =TaskDetailActivity.newIntent(getActivity(),mTask.getId());
+                    startActivity(intent);
                 }
             });
         }
 
         public void bind(Task task) {
             mTask = task;
-            mTitleTextView.setText(mTask.getTitle());
-            mFirstLetterOfTitle.setText(mTask.getTitle().charAt(0));
+            String mTaskTitle=mTask.getTitle();
+            mTitleTextView.setText(mTaskTitle);
+            mFirstLetterOfTitle.setText(mTaskTitle.substring(0,1).toUpperCase());
         }
     }
 

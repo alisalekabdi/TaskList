@@ -19,12 +19,12 @@ public class TaskList {
         mUnDoneTasks=new LinkedHashMap<>();
     }
 
-    public void addTask(Task task){
-        mAllTasks.put(task.getId(),task);
-        if(task.isDone()){
-            mDoneTasks.put(task.getId(),task);
+    public void addTask(Task task,UUID taskId){
+        mAllTasks.put(taskId,task);
+        if(task.isDone()==true){
+            mDoneTasks.put(taskId,task);
         }else{
-            mUnDoneTasks.put(task.getId(),task);
+            mUnDoneTasks.put(taskId,task);
         }
     }
     public void removeTask(Task task){

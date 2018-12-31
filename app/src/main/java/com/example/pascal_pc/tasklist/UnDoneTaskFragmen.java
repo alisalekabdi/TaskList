@@ -15,9 +15,12 @@ import java.util.List;
  */
 public class UnDoneTaskFragmen extends TaskListFragment {
 
-    public static UnDoneTaskFragmen newInstance() {
+    private static final String EXTRA_POSITION ="com.example.pascal_pc.tasklist.position" ;
+
+    public static UnDoneTaskFragmen newInstance(int position) {
         
         Bundle args = new Bundle();
+        args.putInt(EXTRA_POSITION,position);
         
         UnDoneTaskFragmen fragment = new UnDoneTaskFragmen();
         fragment.setArguments(args);
@@ -28,10 +31,14 @@ public class UnDoneTaskFragmen extends TaskListFragment {
         // Required empty public constructor
     }
 
+    @Override
+    public int getCurrentPosition() {
+        return getArguments().getInt(EXTRA_POSITION);
+    }
 
     @Override
     public List<Task> getTasks() {
-            TaskList taskList = TaskList.getInstance();
-            return taskList.getUnDoneTasks();
+//            TaskList taskList = TaskList.getInstance();
+            return TaskList.getInstance().getUnDoneTasks();
     }
 }
