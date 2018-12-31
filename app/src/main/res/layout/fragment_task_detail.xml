@@ -113,6 +113,17 @@
             android:text="isDone" />
 
         <Button
+            android:id="@+id/edite_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/darker_gray"
+            android:drawableLeft="@android:drawable/ic_menu_edit"
+            android:text="Edite"
+            android:textAllCaps="false"
+            android:textStyle="bold" />
+
+        <Button
             android:id="@+id/delete_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

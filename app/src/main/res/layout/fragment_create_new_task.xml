@@ -29,6 +29,28 @@
         android:paddingBottom="50dp"
         android:textSize="18sp" />
 
+    <CheckBox
+        android:id="@+id/isDone_checkBox_newTask"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="isDone" />
+
+    <Button
+        android:id="@+id/date_button_new_task"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Date"
+        android:textAllCaps="false"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/time_button_new_task"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Time"
+        android:textAllCaps="false"
+        android:textStyle="bold" />
+
     <Button
         android:id="@+id/create_btn"
         android:layout_width="match_parent"

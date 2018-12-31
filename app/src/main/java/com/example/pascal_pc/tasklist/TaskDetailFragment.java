@@ -41,8 +41,10 @@ public class TaskDetailFragment extends Fragment {
     private TextView mTimeTxtView;
     private TextView mDateTxtView;
     private Button mDltBtn;
+    private Button mEditeBtn;
     private CheckBox mDoneCheckBox;
     private Task mTask;
+    private boolean mPermit;
 
     public static TaskDetailFragment newInstance(UUID taskID) {
 
@@ -75,11 +77,18 @@ public class TaskDetailFragment extends Fragment {
         mTimeTxtView=view.findViewById(R.id.time_text_view);
         mDoneCheckBox=view.findViewById(R.id.done_checkBox);
         mDltBtn=view.findViewById(R.id.delete_btn);
+        mEditeBtn=view.findViewById(R.id.edite_btn);
 
         mDescriptionTxtView.setText(mTask.getDescription());
        mDateTxtView.setText(new SimpleDateFormat("EEE-d MMM-yyyy ").format(mTask.getDate()));
         mTimeTxtView.setText(new SimpleDateFormat("kk:mm").format(mTask.getDate()));
         mDoneCheckBox.setChecked(mTask.isDone());
+        mEditeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPermit=true;
+            }
+        });
 
         mDescriptionTxtView.addTextChangedListener(new TextWatcher() {
             @Override
