@@ -31,6 +31,7 @@ public class LogInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_in);
 
+
         mUserName = findViewById(R.id.username_edite_text);
         mPassword = findViewById(R.id.password_edite_text);
         mlogin = findViewById(R.id.login_btn);
@@ -91,7 +92,7 @@ public class LogInActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //start register fragment and record data
-                Intent intent = ResgisterActivity.newIntent(LogInActivity.this);
+                Intent intent = ResgisterActivity.newIntent(LogInActivity.this,0);
                 startActivity(intent);
             }
         });

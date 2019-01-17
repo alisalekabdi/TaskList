@@ -1,6 +1,7 @@
 package com.example.pascal_pc.tasklist;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,7 +9,10 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+
+import com.example.pascal_pc.tasklist.models.TaskList;
 
 public class TaskPagerActivity extends AppCompatActivity {
 
@@ -69,6 +73,36 @@ public class TaskPagerActivity extends AppCompatActivity {
             }
         });
         mTaskTabLayout.setupWithViewPager(mViewPager);
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        final int REQ_FOR_REGISTER = 1;
+        if (mUserID.equals("null")) {
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(TaskPagerActivity.this);
+            alertBuilder.setTitle("Register");
+            alertBuilder.setIcon(R.drawable.ic_delete);
+            alertBuilder.setMessage("Do you want to register?");
+            alertBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    Intent intent = ResgisterActivity.newIntent(TaskPagerActivity.this, REQ_FOR_REGISTER);
+                    startActivity(intent);
+                    TaskPagerActivity.this.finish();
+                }
+            });
+            alertBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    TaskList.getInstance(TaskPagerActivity.this).deleteAllTasks(mUserID);
+                    TaskPagerActivity.this.finish();
+                }
+            });
+            AlertDialog alert = alertBuilder.create();
+            alert.show();
+        }
 
     }
 }

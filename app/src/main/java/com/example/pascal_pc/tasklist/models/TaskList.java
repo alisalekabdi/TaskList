@@ -20,19 +20,20 @@ public class TaskList {
     private Context mContext;
 
 
-    private TaskList(Context context){
-        mContext=context.getApplicationContext();
-        mDataBase=new TaskBaseHelper(context).getWritableDatabase();
-  }
-
-    public void addTask(Task task){
-        ContentValues values=getContentValues(task);
-        mDataBase.insert(TaskDbSchema.TaskTable.NAME,null,values);
+    private TaskList(Context context) {
+        mContext = context.getApplicationContext();
+        mDataBase = new TaskBaseHelper(context).getWritableDatabase();
     }
-    public void removeTask(Task task){
-        String WhereClause=TaskDbSchema.TaskTable.Col.UUID +" =?";
-        String[] WhereArgs=new String[]{task.getId().toString()};
-        mDataBase.delete(TaskDbSchema.TaskTable.NAME,WhereClause,WhereArgs);
+
+    public void addTask(Task task, String userId) {
+        ContentValues values = getContentValues(task, userId);
+        mDataBase.insert(TaskDbSchema.TaskTable.NAME, null, values);
+    }
+
+    public void removeTask(Task task, String userId) {
+        String WhereClause = TaskDbSchema.TaskTable.Col.UUID + " =? AND " + TaskDbSchema.TaskTable.Col.USERID + " =? ";
+        String[] WhereArgs = new String[]{task.getId().toString(), userId};
+        mDataBase.delete(TaskDbSchema.TaskTable.NAME, WhereClause, WhereArgs);
     }
 
     public static TaskList getInstance(Context context) {
@@ -41,52 +42,12 @@ public class TaskList {
 
         return instance;
     }
-    public List<Task> getTasks() {
-        List<Task> tasks=new ArrayList<>();
-        Cursor cursor=mDataBase.query(
-                TaskDbSchema.TaskTable.NAME,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null);
 
-         try {
-             if(cursor.getCount()==0){
-                 return tasks;
-             }
-             cursor.moveToFirst();
-
-             while (!cursor.isAfterLast()){
-                 UUID uuid = UUID.fromString(cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.UUID)));
-                 String title = cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.TITLE));
-                 String description = cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DESCRIPTION));
-                 Date date = new Date(cursor.getLong(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DATE)));
-                 boolean isDone = cursor.getInt(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DONE))!=0;
-
-                 Task task=new Task();
-                 task.setId(uuid);
-                 task.setTitle(title);
-                 task.setDescription(description);
-                 task.setDate(date);
-                 task.setDone(isDone);
-
-                 tasks.add(task);
-                 cursor.moveToNext();
-             }
-         } finally {
-             cursor.close();
-         }
-        return tasks;
-    }
-
-    public Task getTask(UUID id) {
-        String WhereClause=TaskDbSchema.TaskTable.Col.UUID +" =?";
-        String[] WhereArgs=new String[]{id.toString()};
-
-        Cursor cursor=mDataBase.query(
+    public List<Task> getTasks(String userId) {
+        List<Task> tasks = new ArrayList<>();
+        String WhereClause = TaskDbSchema.TaskTable.Col.USERID + " =? ";
+        String[] WhereArgs = new String[]{userId};
+        Cursor cursor = mDataBase.query(
                 TaskDbSchema.TaskTable.NAME,
                 null,
                 WhereClause,
@@ -97,16 +58,61 @@ public class TaskList {
                 null);
 
         try {
-            if (cursor.getCount()==0){ return null;}
+            if (cursor.getCount() == 0) {
+                return tasks;
+            }
+            cursor.moveToFirst();
+
+            while (!cursor.isAfterLast()) {
+                UUID uuid = UUID.fromString(cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.UUID)));
+                String title = cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.TITLE));
+                String description = cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DESCRIPTION));
+                Date date = new Date(cursor.getLong(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DATE)));
+                boolean isDone = cursor.getInt(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DONE)) != 0;
+
+                Task task = new Task();
+                task.setId(uuid);
+                task.setTitle(title);
+                task.setDescription(description);
+                task.setDate(date);
+                task.setDone(isDone);
+
+                tasks.add(task);
+                cursor.moveToNext();
+            }
+        } finally {
+            cursor.close();
+        }
+        return tasks;
+    }
+
+    public Task getTask(UUID id, String userId) {
+        String WhereClause = TaskDbSchema.TaskTable.Col.UUID + " =? AND " + TaskDbSchema.TaskTable.Col.USERID + " =? ";
+        String[] WhereArgs = new String[]{id.toString(), userId};
+
+        Cursor cursor = mDataBase.query(
+                TaskDbSchema.TaskTable.NAME,
+                null,
+                WhereClause,
+                WhereArgs,
+                null,
+                null,
+                null,
+                null);
+
+        try {
+            if (cursor.getCount() == 0) {
+                return null;
+            }
 
             cursor.moveToFirst();
             UUID uuid = UUID.fromString(cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.UUID)));
             String title = cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.TITLE));
             String description = cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DESCRIPTION));
             Date date = new Date(cursor.getLong(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DATE)));
-            boolean isDone = cursor.getInt(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DONE))!=0;
+            boolean isDone = cursor.getInt(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DONE)) != 0;
 
-            Task task=new Task();
+            Task task = new Task();
             task.setId(uuid);
             task.setTitle(title);
             task.setDescription(description);
@@ -114,29 +120,71 @@ public class TaskList {
             task.setDone(isDone);
 
             return task;
-        }finally {
+        } finally {
             cursor.close();
         }
     }
-    public void update(Task task){
-        ContentValues values=getContentValues(task);
-        String WhereClause=TaskDbSchema.TaskTable.Col.UUID +" =?";
-        String[] WhereArgs=new String[]{task.getId().toString()};
-        mDataBase.update(TaskDbSchema.TaskTable.NAME,values,WhereClause,WhereArgs);
+
+    public void update(Task task, String userId) {
+        ContentValues values = getContentValues(task, userId);
+        String WhereClause = TaskDbSchema.TaskTable.Col.UUID + " =? AND " + TaskDbSchema.TaskTable.Col.USERID + " =? ";
+        String[] WhereArgs = new String[]{task.getId().toString(), userId};
+        mDataBase.update(TaskDbSchema.TaskTable.NAME, values, WhereClause, WhereArgs);
     }
-    public ContentValues getContentValues(Task task){
-        ContentValues values =new ContentValues();
-        values.put(TaskDbSchema.TaskTable.Col.USERID,"add user id");
-        values.put(TaskDbSchema.TaskTable.Col.UUID,task.getId().toString());
-        values.put(TaskDbSchema.TaskTable.Col.TITLE,task.getTitle());
-        values.put(TaskDbSchema.TaskTable.Col.DESCRIPTION,task.getDescription());
-        values.put(TaskDbSchema.TaskTable.Col.DATE,task.getDate().getTime());
-        values.put(TaskDbSchema.TaskTable.Col.DONE,task.isDone()? 1 : 0);
+
+    public ContentValues getContentValues(Task task, String userId) {
+        ContentValues values = new ContentValues();
+        values.put(TaskDbSchema.TaskTable.Col.USERID, userId);
+        values.put(TaskDbSchema.TaskTable.Col.UUID, task.getId().toString());
+        values.put(TaskDbSchema.TaskTable.Col.TITLE, task.getTitle());
+        values.put(TaskDbSchema.TaskTable.Col.DESCRIPTION, task.getDescription());
+        values.put(TaskDbSchema.TaskTable.Col.DATE, task.getDate().getTime());
+        values.put(TaskDbSchema.TaskTable.Col.DONE, task.isDone() ? 1 : 0);
         return values;
     }
-    public void deleteAllTasks(){
 
-        mDataBase.delete(TaskDbSchema.TaskTable.NAME,null,null);
+    public void deleteAllTasks(String userId) {
+        String whereClause = TaskDbSchema.TaskTable.Col.USERID + " =? ";
+        String[] whereArgs = new String[]{userId};
+        mDataBase.delete(TaskDbSchema.TaskTable.NAME, whereClause, whereArgs);
+    }
+
+    public void updateGuestTask(String userId) {
+        String WhereClause = TaskDbSchema.TaskTable.Col.UUID + " =? ";
+        String[] WhereArgs = new String[]{"null"};
+        Cursor cursor = mDataBase.query(
+                TaskDbSchema.TaskTable.NAME,
+                null,
+                WhereClause,
+                WhereArgs,
+                null,
+                null,
+                null,
+                null
+        );
+        try {
+            if (cursor.getCount() == 0) {
+                return;
+            }
+
+            cursor.moveToFirst();
+            UUID uuid = UUID.fromString(cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.UUID)));
+            String title = cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.TITLE));
+            String description = cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DESCRIPTION));
+            Date date = new Date(cursor.getLong(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DATE)));
+            boolean isDone = cursor.getInt(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DONE)) != 0;
+
+            Task task = new Task();
+            task.setId(uuid);
+            task.setTitle(title);
+            task.setDescription(description);
+            task.setDate(date);
+            task.setDone(isDone);
+
+            update(task,userId);
+        } finally {
+            cursor.close();
+        }
     }
 
 }

@@ -37,6 +37,7 @@ public class TaskDetailFragment extends Fragment {
     private static final int REQ_TIME_PICKER = 1;
 
     private static final String EXRTA_TASK_ID = "com.example.pascal_pc.tasklist.taskId";
+    private static final String EXTRA_USER_ID = "userId";
     private TextView mDescriptionTxtView;
     private TextView mTimeTxtView;
     private TextView mDateTxtView;
@@ -44,13 +45,15 @@ public class TaskDetailFragment extends Fragment {
     private Button mEditeBtn;
     private CheckBox mDoneCheckBox;
     private Task mTask;
+    private String mUserId;
     private boolean mPermit=false;
 
-    public static TaskDetailFragment newInstance(UUID taskID) {
+    public static TaskDetailFragment newInstance(UUID taskID,String userId) {
 
         Bundle args = new Bundle();
 
         args.putSerializable(EXRTA_TASK_ID,taskID);
+        args.putString(EXTRA_USER_ID,userId);
         TaskDetailFragment fragment = new TaskDetailFragment();
         fragment.setArguments(args);
         return fragment;
@@ -64,7 +67,8 @@ public class TaskDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         UUID taskId= (UUID) getArguments().getSerializable(EXRTA_TASK_ID);
-        mTask=TaskList.getInstance(getActivity()).getTask(taskId);
+        mUserId=getArguments().getString(EXTRA_USER_ID);
+        mTask=TaskList.getInstance(getActivity()).getTask(taskId,mUserId);
     }
 
     @Override
@@ -147,7 +151,7 @@ public class TaskDetailFragment extends Fragment {
                 alertBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        TaskList.getInstance(getActivity()).removeTask(mTask);
+                        TaskList.getInstance(getActivity()).removeTask(mTask,mUserId);
                         getActivity().finish();
                     }
                 });
@@ -187,6 +191,6 @@ public class TaskDetailFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        TaskList.getInstance(getActivity()).update(mTask);
+        TaskList.getInstance(getActivity()).update(mTask,mUserId);
     }
 }

@@ -8,8 +8,13 @@ import android.os.Bundle;
 
 public class ResgisterActivity extends AppCompatActivity {
 
-    public static Intent newIntent(Context context){
+    private static final String REQ_CODE ="reqCode" ;
+    private int mReqCode;
+
+
+    public static Intent newIntent(Context context,int reqCode){
         Intent intent =new Intent(context,ResgisterActivity.class);
+        intent.putExtra(REQ_CODE,reqCode);
         return intent;
     }
 
@@ -18,10 +23,12 @@ public class ResgisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_resgister);
 
+        mReqCode=getIntent().getIntExtra(REQ_CODE,0);
+
         FragmentManager fragmentManager=getSupportFragmentManager();
         if(fragmentManager.findFragmentById(R.id.fragment_container_register)==null){
             fragmentManager.beginTransaction()
-                    .add(R.id.fragment_container_register,RegisterFragment.newInstance())
+                    .add(R.id.fragment_container_register,RegisterFragment.newInstance(mReqCode))
                     .commit();
         }
     }

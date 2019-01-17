@@ -32,7 +32,7 @@ import java.util.List;
 public class TaskListFragment extends Fragment {
 
     private static final String EXTRA_POSITION = "com.example.pascal_pc.tasklist.position";
-    private static final String EXTRA_USER_ID = "user_id" ;
+    private static final String EXTRA_USER_ID = "user_id";
 
     private RecyclerView mRecyclerView;
     private ImageView mMsgImgView;
@@ -42,11 +42,11 @@ public class TaskListFragment extends Fragment {
     private int mCurrentPosition;
     private String mUserId;
 
-    public static TaskListFragment newInstance(int position,String userId) {
+    public static TaskListFragment newInstance(int position, String userId) {
 
         Bundle args = new Bundle();
         args.putInt(EXTRA_POSITION, position);
-        args.putString(EXTRA_USER_ID,userId);
+        args.putString(EXTRA_USER_ID, userId);
 
         TaskListFragment fragment = new TaskListFragment();
         fragment.setArguments(args);
@@ -59,9 +59,10 @@ public class TaskListFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setHasOptionsMenu(true);
         mCurrentPosition = getArguments().getInt(EXTRA_POSITION);
-        mUserId=getArguments().getString(EXTRA_USER_ID);
+        mUserId = getArguments().getString(EXTRA_USER_ID);
     }
 
     @SuppressLint({"RestrictedApi", "WrongViewCast"})
@@ -78,7 +79,7 @@ public class TaskListFragment extends Fragment {
         mAddFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = CreateNewTaskActivity.newIntent(getActivity());
+                Intent intent = CreateNewTaskActivity.newIntent(getActivity(),mUserId);
                 startActivity(intent);
             }
         });
@@ -95,20 +96,20 @@ public class TaskListFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.task_list_fragment,menu);
-        MenuItem itemDlt=menu.findItem(R.id.delete_all_tasks);
-        if(mCurrentPosition==0){
+        inflater.inflate(R.menu.task_list_fragment, menu);
+        MenuItem itemDlt = menu.findItem(R.id.delete_all_tasks);
+        if (mCurrentPosition == 0) {
             itemDlt.setVisible(true);
-        }else {
+        } else {
             itemDlt.setVisible(false);
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.delete_all_tasks :
-                TaskList.getInstance(getActivity()).deleteAllTasks();
+        switch (item.getItemId()) {
+            case R.id.delete_all_tasks:
+                TaskList.getInstance(getActivity()).deleteAllTasks(mUserId);
                 updateUI();
                 return true;
             default:
@@ -125,7 +126,7 @@ public class TaskListFragment extends Fragment {
 
     private void updateUI() {
 
-        List<Task> tasks = TaskList.getInstance(getActivity()).getTasks();
+        List<Task> tasks = TaskList.getInstance(getActivity()).getTasks(mUserId);
 
         if (mCurrentPosition == 0 && tasks.size() == 0) {
             mMsgImgView.setVisibility(View.VISIBLE);
@@ -158,7 +159,7 @@ public class TaskListFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     // start activity detail
-                    Intent intent = TaskDetailActivity.newIntent(getActivity(), mTask.getId());
+                    Intent intent = TaskDetailActivity.newIntent(getActivity(), mTask.getId(),mUserId);
                     startActivity(intent);
                     mTaskAdapter.notifyDataSetChanged();
                 }
@@ -178,31 +179,35 @@ public class TaskListFragment extends Fragment {
         private List<Task> mTasks;
 
         public void setTasks(List<Task> tasks) {
-            mTasks=getTasks(tasks);
+            mTasks = getTasks(tasks);
         }
 
         public TaskAdapter(List<Task> tasks) {
-            mTasks=getTasks(tasks);
+            mTasks = getTasks(tasks);
         }
+
         private List<Task> getTasks(List<Task> tasks) {
-            List<Task> tasks1=new ArrayList<>();
-            if(mCurrentPosition==0){tasks1 = tasks;}
-            if(mCurrentPosition==1){
-                for(int i=0;i<tasks.size();i++){
-                    if(tasks.get(i).isDone()){
+            List<Task> tasks1 = new ArrayList<>();
+            if (mCurrentPosition == 0) {
+                tasks1 = tasks;
+            }
+            if (mCurrentPosition == 1) {
+                for (int i = 0; i < tasks.size(); i++) {
+                    if (tasks.get(i).isDone()) {
                         tasks1.add(tasks.get(i));
                     }
                 }
             }
-            if(mCurrentPosition==2){
-                for(int i=0;i<tasks.size();i++){
-                    if(tasks.get(i).isDone()==false){
+            if (mCurrentPosition == 2) {
+                for (int i = 0; i < tasks.size(); i++) {
+                    if (tasks.get(i).isDone() == false) {
                         tasks1.add(tasks.get(i));
                     }
                 }
             }
-            return  tasks1;
+            return tasks1;
         }
+
         @NonNull
         @Override
         public TaskHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {

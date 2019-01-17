@@ -3,6 +3,7 @@ package com.example.pascal_pc.tasklist;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -23,18 +24,21 @@ import com.example.pascal_pc.tasklist.models.UserList;
  */
 public class RegisterFragment extends Fragment {
 
+    private static final String EXTRA_REQ_CODE = "reqCode";
     private EditText mUserNameEditText;
     private EditText mPasswordEditText;
     private EditText mConfirmPasswordEditText;
     private TextView mRegisterBtn;
 
     private String mConfirmPassword;
+    private int mReqCode;
     private User mUser = new User();
 
-    public static RegisterFragment newInstance() {
+    public static RegisterFragment newInstance(int reqCode) {
 
         Bundle args = new Bundle();
 
+        args.putInt(EXTRA_REQ_CODE, reqCode);
         RegisterFragment fragment = new RegisterFragment();
         fragment.setArguments(args);
         return fragment;
@@ -44,6 +48,12 @@ public class RegisterFragment extends Fragment {
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mReqCode = getArguments().getInt(EXTRA_REQ_CODE);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -109,10 +119,15 @@ public class RegisterFragment extends Fragment {
             public void onClick(View v) {
                 // add user and send UUID for task table
                 if (!mUser.getUserName().equals("") && !mUser.getPassword().equals("") && mUser.getPassword().equals(mConfirmPassword)) {
-                    UserList.getInstance(getActivity()).addUser(mUser);
-                    Intent intent = TaskPagerActivity.newIntent(getActivity(), mUser.getUserId().toString());
-                    startActivity(intent);
-                    getActivity().finish();
+                    if (mReqCode == 0) {
+                        UserList.getInstance(getActivity()).addUser(mUser);
+                        Intent intent = TaskPagerActivity.newIntent(getActivity(), mUser.getUserId().toString());
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                        startActivity(intent);
+                        getActivity().finish();
+                    } else {
+
+                    }
                 } else if (mUser.getPassword().equals(mConfirmPassword)) {
                     Toast.makeText(getActivity(), "password is incorrect", Toast.LENGTH_SHORT).show();
                 } else {

@@ -4,6 +4,7 @@ package com.example.pascal_pc.tasklist;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -32,6 +33,7 @@ public class CreateNewTaskFragment extends Fragment {
     private static final String DIALOG_TIME_TAG = "DialogTime";
     private static final int REQ_DATE_PICKER = 0;
     private static final int REQ_TIME_PICKER = 1;
+    private static final String EXTRA_USER_ID ="userId" ;
 
     private Button mCreateBtn;
     private Button mDateBtn;
@@ -39,19 +41,27 @@ public class CreateNewTaskFragment extends Fragment {
     private EditText mTitleEditeTxt;
     private EditText mDescriptionEditeTxt;
     private CheckBox mIsDoneCheckBox;
+    private String mUserId;
 //    boolean isSearched = false;
 
     private Task mTask;
 
-    public static CreateNewTaskFragment newInstance() {
+    public static CreateNewTaskFragment newInstance(String userId) {
 
         Bundle args = new Bundle();
+        args.putString(EXTRA_USER_ID,userId);
 
         CreateNewTaskFragment fragment = new CreateNewTaskFragment();
         fragment.setArguments(args);
         return fragment;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mUserId=getArguments().getString(EXTRA_USER_ID);
+    }
 
     public CreateNewTaskFragment() {
         // Required empty public constructor
@@ -132,7 +142,7 @@ public class CreateNewTaskFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(mTask.getTitle()!=null){
-                    TaskList.getInstance(getActivity()).addTask(mTask);
+                    TaskList.getInstance(getActivity()).addTask(mTask,mUserId);
                     getActivity().finish();
                 }else {
                     Toast.makeText(getActivity(), "You should fill title", Toast.LENGTH_SHORT).show();
