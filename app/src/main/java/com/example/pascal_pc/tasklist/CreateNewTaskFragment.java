@@ -39,6 +39,7 @@ public class CreateNewTaskFragment extends Fragment {
     private EditText mTitleEditeTxt;
     private EditText mDescriptionEditeTxt;
     private CheckBox mIsDoneCheckBox;
+//    boolean isSearched = false;
 
     private Task mTask;
 
@@ -131,12 +132,7 @@ public class CreateNewTaskFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(mTask.getTitle()!=null){
-                    TaskList.getInstance().addAllTask(mTask);
-                    if(mTask.isDone()){
-                        TaskList.getInstance().addDoneTask(mTask);
-                    }else{
-                        TaskList.getInstance().addUnDoneTask(mTask);
-                    }
+                    TaskList.getInstance(getActivity()).addTask(mTask);
                     getActivity().finish();
                 }else {
                     Toast.makeText(getActivity(), "You should fill title", Toast.LENGTH_SHORT).show();

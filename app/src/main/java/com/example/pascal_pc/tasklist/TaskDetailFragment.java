@@ -44,7 +44,7 @@ public class TaskDetailFragment extends Fragment {
     private Button mEditeBtn;
     private CheckBox mDoneCheckBox;
     private Task mTask;
-    private boolean mPermit;
+    private boolean mPermit=false;
 
     public static TaskDetailFragment newInstance(UUID taskID) {
 
@@ -64,7 +64,7 @@ public class TaskDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         UUID taskId= (UUID) getArguments().getSerializable(EXRTA_TASK_ID);
-        mTask=TaskList.getInstance().getTask(taskId);
+        mTask=TaskList.getInstance(getActivity()).getTask(taskId);
     }
 
     @Override
@@ -89,6 +89,19 @@ public class TaskDetailFragment extends Fragment {
                 mPermit=true;
             }
         });
+//        if(mPermit=false){
+//            mDescriptionTxtView.setEnabled(false);
+//            mDateTxtView.setEnabled(false);
+//            mTimeTxtView.setEnabled(false);
+//            mDltBtn.setEnabled(false);
+//            mDoneCheckBox.setEnabled(false);
+//        }else{
+//            mDescriptionTxtView.setEnabled(true);
+//            mDateTxtView.setEnabled(true);
+//            mTimeTxtView.setEnabled(true);
+//            mDltBtn.setEnabled(true);
+//            mDoneCheckBox.setEnabled(true);
+//        }
 
         mDescriptionTxtView.addTextChangedListener(new TextWatcher() {
             @Override
@@ -134,7 +147,7 @@ public class TaskDetailFragment extends Fragment {
                 alertBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        TaskList.getInstance().removeTask(mTask);
+                        TaskList.getInstance(getActivity()).removeTask(mTask);
                         getActivity().finish();
                     }
                 });
@@ -147,13 +160,6 @@ public class TaskDetailFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mTask.setDone(isChecked);
-                if(isChecked){
-                    TaskList.getInstance().addDoneTask(mTask);
-                    TaskList.getInstance().removeUnDoneTask(mTask);
-                }else{
-                    TaskList.getInstance().addUnDoneTask(mTask);
-                    TaskList.getInstance().removeDoneTask(mTask);
-                }
             }
         });
 
@@ -176,5 +182,11 @@ public class TaskDetailFragment extends Fragment {
             mTask.setDate(date);
             mDateTxtView.setText(new SimpleDateFormat("EEE-d MMM-yyyy ").format(date));
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        TaskList.getInstance(getActivity()).update(mTask);
     }
 }

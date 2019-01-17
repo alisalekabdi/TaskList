@@ -11,71 +11,110 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.pascal_pc.tasklist.models.Task;
+import com.example.pascal_pc.tasklist.models.TaskList;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public abstract class TaskListFragment extends Fragment {
+public class TaskListFragment extends Fragment {
 
-    private static final String EXTRA_POSITION ="com.example.pascal_pc.tasklist.position";
+    private static final String EXTRA_POSITION = "com.example.pascal_pc.tasklist.position";
+    private static final String EXTRA_USER_ID = "user_id" ;
 
     private RecyclerView mRecyclerView;
     private ImageView mMsgImgView;
-    private TaskListFragment.TaskAdapter mTaskAdapter;
+    private TaskAdapter mTaskAdapter;
     protected FloatingActionButton mAddFab;
-    private int mCurrentPosition;
-//    public static TaskListFragment newInstance(int position) {
-//
-//        Bundle args = new Bundle();
-//
-//        TaskListFragment fragment = new TaskListFragment();
-//        fragment.setArguments(args);
-//        return fragment;
-//    }
 
-    public TaskListFragment(){}
+    private int mCurrentPosition;
+    private String mUserId;
+
+    public static TaskListFragment newInstance(int position,String userId) {
+
+        Bundle args = new Bundle();
+        args.putInt(EXTRA_POSITION, position);
+        args.putString(EXTRA_USER_ID,userId);
+
+        TaskListFragment fragment = new TaskListFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public TaskListFragment() {
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mCurrentPosition=getArguments().getInt(EXTRA_POSITION);
+        setHasOptionsMenu(true);
+        mCurrentPosition = getArguments().getInt(EXTRA_POSITION);
+        mUserId=getArguments().getString(EXTRA_USER_ID);
     }
 
     @SuppressLint({"RestrictedApi", "WrongViewCast"})
     @Override
-    public  View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_task_list, container, false);
 
         mRecyclerView = view.findViewById(R.id.task_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        mAddFab=view.findViewById(R.id.add_fab);
-        mMsgImgView=view.findViewById(R.id.img_empty_list_btn);
+        mAddFab = view.findViewById(R.id.add_fab);
+        mMsgImgView = view.findViewById(R.id.img_empty_list_btn);
         mAddFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=CreateNewTaskActivity.newIntent(getActivity());
+                Intent intent = CreateNewTaskActivity.newIntent(getActivity());
                 startActivity(intent);
             }
         });
-        if(mCurrentPosition==0){
+        if (mCurrentPosition == 0) {
             mAddFab.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             mAddFab.setVisibility(View.GONE);
         }
 
         updateUI();
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.task_list_fragment,menu);
+        MenuItem itemDlt=menu.findItem(R.id.delete_all_tasks);
+        if(mCurrentPosition==0){
+            itemDlt.setVisible(true);
+        }else {
+            itemDlt.setVisible(false);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.delete_all_tasks :
+                TaskList.getInstance(getActivity()).deleteAllTasks();
+                updateUI();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
     }
 
     @Override
@@ -86,11 +125,11 @@ public abstract class TaskListFragment extends Fragment {
 
     private void updateUI() {
 
-        List<Task> tasks = getTasks();
+        List<Task> tasks = TaskList.getInstance(getActivity()).getTasks();
 
-        if(getCurrentPosition()==0&&getTasks().size()==0){
+        if (mCurrentPosition == 0 && tasks.size() == 0) {
             mMsgImgView.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             mMsgImgView.setVisibility(View.GONE);
         }
 
@@ -98,11 +137,10 @@ public abstract class TaskListFragment extends Fragment {
             mTaskAdapter = new TaskAdapter(tasks);
             mRecyclerView.setAdapter(mTaskAdapter);
         } else {
+            mTaskAdapter.setTasks(tasks);
             mTaskAdapter.notifyDataSetChanged();
         }
     }
-    public abstract int getCurrentPosition();
-    public abstract List<Task> getTasks() ;
 
     private class TaskHolder extends RecyclerView.ViewHolder {
 
@@ -120,7 +158,7 @@ public abstract class TaskListFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     // start activity detail
-                    Intent intent =TaskDetailActivity.newIntent(getActivity(),mTask.getId());
+                    Intent intent = TaskDetailActivity.newIntent(getActivity(), mTask.getId());
                     startActivity(intent);
                     mTaskAdapter.notifyDataSetChanged();
                 }
@@ -129,9 +167,9 @@ public abstract class TaskListFragment extends Fragment {
 
         public void bind(Task task) {
             mTask = task;
-            String mTaskTitle=mTask.getTitle();
+            String mTaskTitle = mTask.getTitle();
             mTitleTextView.setText(mTaskTitle);
-            mFirstLetterOfTitle.setText(mTaskTitle.substring(0,1).toUpperCase());
+            mFirstLetterOfTitle.setText(mTaskTitle.substring(0, 1).toUpperCase());
         }
     }
 
@@ -139,16 +177,38 @@ public abstract class TaskListFragment extends Fragment {
 
         private List<Task> mTasks;
 
-        public TaskAdapter(List<Task> tasks) {
-            mTasks = tasks;
+        public void setTasks(List<Task> tasks) {
+            mTasks=getTasks(tasks);
         }
 
+        public TaskAdapter(List<Task> tasks) {
+            mTasks=getTasks(tasks);
+        }
+        private List<Task> getTasks(List<Task> tasks) {
+            List<Task> tasks1=new ArrayList<>();
+            if(mCurrentPosition==0){tasks1 = tasks;}
+            if(mCurrentPosition==1){
+                for(int i=0;i<tasks.size();i++){
+                    if(tasks.get(i).isDone()){
+                        tasks1.add(tasks.get(i));
+                    }
+                }
+            }
+            if(mCurrentPosition==2){
+                for(int i=0;i<tasks.size();i++){
+                    if(tasks.get(i).isDone()==false){
+                        tasks1.add(tasks.get(i));
+                    }
+                }
+            }
+            return  tasks1;
+        }
         @NonNull
         @Override
         public TaskHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-                LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-            View view=layoutInflater.inflate(R.layout.fragment_task_title,viewGroup,false);
-            TaskHolder taskHolder=new TaskHolder(view);
+            LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
+            View view = layoutInflater.inflate(R.layout.fragment_task_title, viewGroup, false);
+            TaskHolder taskHolder = new TaskHolder(view);
             return taskHolder;
         }
 
@@ -162,5 +222,7 @@ public abstract class TaskListFragment extends Fragment {
         public int getItemCount() {
             return mTasks.size();
         }
+
+
     }
 }

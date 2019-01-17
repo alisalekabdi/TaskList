@@ -53,4 +53,7 @@ public class Task {
     }
 
 
+    public void setId(UUID id) {
+        mId = id;
+    }
 }
