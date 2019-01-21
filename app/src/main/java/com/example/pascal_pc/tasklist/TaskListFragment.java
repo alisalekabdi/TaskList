@@ -7,7 +7,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -79,8 +81,13 @@ public class TaskListFragment extends Fragment {
         mAddFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = CreateNewTaskActivity.newIntent(getActivity(),mUserId);
-                startActivity(intent);
+//                Intent intent = CreateNewTaskActivity.newIntent(getActivity(),mUserId);
+//                startActivity(intent);
+
+                FragmentManager fragmentManager=getFragmentManager();
+                DialogFragment fragment=CreateNewTaskFragment.newInstance(mUserId);
+                fragment.setTargetFragment(TaskListFragment.this,0);
+                fragment.show(fragmentManager,"tag");
             }
         });
         if (mCurrentPosition == 0) {
@@ -158,9 +165,14 @@ public class TaskListFragment extends Fragment {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // start activity detail
-                    Intent intent = TaskDetailActivity.newIntent(getActivity(), mTask.getId(),mUserId);
-                    startActivity(intent);
+//                    // start activity detail
+//                    Intent intent = TaskDetailActivity.newIntent(getActivity(), mTask.getId(),mUserId);
+//                    startActivity(intent);
+
+                    FragmentManager fragmentManager=getFragmentManager();
+                    TaskDetailFragment fragment=TaskDetailFragment.newInstance(mTask.getId(),mUserId);
+                    fragment.setTargetFragment(TaskListFragment.this,0);
+                    fragment.show(fragmentManager,"tag");
                     mTaskAdapter.notifyDataSetChanged();
                 }
             });

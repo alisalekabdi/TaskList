@@ -13,11 +13,16 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.TimePicker;
+
+import com.example.pascal_pc.tasklist.models.Task;
+import com.example.pascal_pc.tasklist.models.TaskList;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.UUID;
 
 
 /**
@@ -26,14 +31,14 @@ import java.util.GregorianCalendar;
 public class TimePickerFragment extends DialogFragment {
 
     private static final String ARG_TIME = "time";
-    public static final String EXTRA_TIME ="com.example.amin.criminalintent.time";
+    public static final String EXTRA_TIME = "com.example.amin.criminalintent.time";
     private Date mDate;
     private TimePicker mTimePicker;
 
-    public static TimePickerFragment newInstance(Date date ) {
+    public static TimePickerFragment newInstance(Date date) {
 
         Bundle args = new Bundle();
-        args.putSerializable(ARG_TIME,date);
+        args.putSerializable(ARG_TIME, date);
         TimePickerFragment fragment = new TimePickerFragment();
         fragment.setArguments(args);
         return fragment;
@@ -47,26 +52,26 @@ public class TimePickerFragment extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mDate= (Date) getArguments().getSerializable(ARG_TIME);
+        mDate = (Date) getArguments().getSerializable(ARG_TIME);
     }
 
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View view=LayoutInflater.from(getActivity()).inflate(R.layout.fragment_time_picker,null);
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_time_picker, null);
 
         final Calendar calendar = Calendar.getInstance();
         calendar.setTime(mDate);
 
 
-        int hour=calendar.get(calendar.HOUR_OF_DAY);
-        int minuet=calendar.get(calendar.MINUTE);
+        int hour = calendar.get(calendar.HOUR_OF_DAY);
+        int minuet = calendar.get(calendar.MINUTE);
         final int year = calendar.get(calendar.YEAR);
         final int month = calendar.get(calendar.MONTH);
         final int day = calendar.get(calendar.DAY_OF_MONTH);
 
-        mTimePicker=view.findViewById(R.id.dialog_time_time_picker);
+        mTimePicker = view.findViewById(R.id.dialog_time_time_picker);
         mTimePicker.setIs24HourView(true);
         mTimePicker.setCurrentHour(hour);
         mTimePicker.setCurrentMinute(minuet);
@@ -78,26 +83,21 @@ public class TimePickerFragment extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        int hour=mTimePicker.getCurrentHour();
-                        int minuet=mTimePicker.getCurrentMinute();
+                        int hour = mTimePicker.getCurrentHour();
+                        int minuet = mTimePicker.getCurrentMinute();
 
 
-                        Date date = new GregorianCalendar(year,month,day,hour,minuet).getTime();
+                        Date date = new GregorianCalendar(year, month, day, hour, minuet).getTime();
                         sendResult(date);
 
                     }
                 })
                 .create();
-
-
-
     }
 
     private void sendResult(Date date) {
-        Intent intent=new Intent();
-        intent.putExtra(EXTRA_TIME,date);
-        getTargetFragment().onActivityResult(getTargetRequestCode(),Activity.RESULT_OK,intent);
+        Intent intent = new Intent();
+        intent.putExtra(EXTRA_TIME, date);
+        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
     }
-
-
 }

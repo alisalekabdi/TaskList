@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.pascal_pc.tasklist.models.TaskList;
 import com.example.pascal_pc.tasklist.models.User;
 import com.example.pascal_pc.tasklist.models.UserList;
 
@@ -118,7 +119,9 @@ public class RegisterFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // add user and send UUID for task table
-                if (!mUser.getUserName().equals("") && !mUser.getPassword().equals("") && mUser.getPassword().equals(mConfirmPassword)) {
+                if (UserList.getInstance(getActivity()).checkUser(mUser.getUserName())) {
+                    Toast.makeText(getActivity(), "This user already have been exist !!", Toast.LENGTH_SHORT).show();
+                } else if (!mUser.getUserName().equals("") && !mUser.getPassword().equals("") && mUser.getPassword().equals(mConfirmPassword)) {
                     if (mReqCode == 0) {
                         UserList.getInstance(getActivity()).addUser(mUser);
                         Intent intent = TaskPagerActivity.newIntent(getActivity(), mUser.getUserId().toString());
@@ -126,9 +129,11 @@ public class RegisterFragment extends Fragment {
                         startActivity(intent);
                         getActivity().finish();
                     } else {
-
+                        UserList.getInstance(getActivity()).addUser(mUser);
+                        TaskList.getInstance(getActivity()).updateGuestTask(mUser.getUserId().toString());
+                        getActivity().finish();
                     }
-                } else if (mUser.getPassword().equals(mConfirmPassword)) {
+                } else if (!mUser.getPassword().equals(mConfirmPassword)) {
                     Toast.makeText(getActivity(), "password is incorrect", Toast.LENGTH_SHORT).show();
                 } else {
                     final Snackbar snackbar = Snackbar.make(view, "You should fill blank", Snackbar.LENGTH_INDEFINITE);

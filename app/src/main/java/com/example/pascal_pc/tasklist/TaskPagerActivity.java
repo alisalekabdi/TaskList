@@ -102,6 +102,8 @@ public class TaskPagerActivity extends AppCompatActivity {
             });
             AlertDialog alert = alertBuilder.create();
             alert.show();
+        }else{
+            this.finish();
         }
 
     }

@@ -13,9 +13,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.DatePicker;
 
+import com.example.pascal_pc.tasklist.models.TaskList;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.UUID;
 
 
 /**
@@ -24,7 +27,7 @@ import java.util.GregorianCalendar;
 public class DatePickerFragment extends DialogFragment {
 
     private static final String ARG_DATE = "date";
-    public static final String EXTRA_DATE = "com.example.amin.criminalintent.date";
+    public static final String EXTRA_DATE = "com.example.pascal_pc.tasklist.time";
 
     private DatePicker mDatePicker;
     private Date mDate;

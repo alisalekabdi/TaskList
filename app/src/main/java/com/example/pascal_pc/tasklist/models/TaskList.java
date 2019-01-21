@@ -150,41 +150,16 @@ public class TaskList {
     }
 
     public void updateGuestTask(String userId) {
-        String WhereClause = TaskDbSchema.TaskTable.Col.UUID + " =? ";
-        String[] WhereArgs = new String[]{"null"};
-        Cursor cursor = mDataBase.query(
-                TaskDbSchema.TaskTable.NAME,
-                null,
-                WhereClause,
-                WhereArgs,
-                null,
-                null,
-                null,
-                null
-        );
-        try {
-            if (cursor.getCount() == 0) {
-                return;
-            }
-
-            cursor.moveToFirst();
-            UUID uuid = UUID.fromString(cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.UUID)));
-            String title = cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.TITLE));
-            String description = cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DESCRIPTION));
-            Date date = new Date(cursor.getLong(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DATE)));
-            boolean isDone = cursor.getInt(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DONE)) != 0;
-
-            Task task = new Task();
-            task.setId(uuid);
-            task.setTitle(title);
-            task.setDescription(description);
-            task.setDate(date);
-            task.setDone(isDone);
-
-            update(task,userId);
-        } finally {
-            cursor.close();
+        List<Task> tasks = getTasks("null");
+        String WhereClause =  TaskDbSchema.TaskTable.Col.USERID + " =? ";
+        String[] WhereArgs = new String[]{ "null"};
+        Task task;
+        for (int i = 0; i < tasks.size(); i++) {
+            task=tasks.get(i);
+            ContentValues values=getContentValues(task, userId);
+            mDataBase.update(TaskDbSchema.TaskTable.NAME,values,WhereClause,WhereArgs);
         }
+
     }
 
 }

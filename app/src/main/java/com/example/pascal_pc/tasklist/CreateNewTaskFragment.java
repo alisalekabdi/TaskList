@@ -2,9 +2,11 @@ package com.example.pascal_pc.tasklist;
 
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -27,7 +29,7 @@ import java.util.Date;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class CreateNewTaskFragment extends Fragment {
+public class CreateNewTaskFragment extends DialogFragment {
 
     private static final String DIALOG_DATE_TAG = "DialogDate";
     private static final String DIALOG_TIME_TAG = "DialogTime";
@@ -54,6 +56,12 @@ public class CreateNewTaskFragment extends Fragment {
         CreateNewTaskFragment fragment = new CreateNewTaskFragment();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+       getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     }
 
     @Override
@@ -143,7 +151,8 @@ public class CreateNewTaskFragment extends Fragment {
             public void onClick(View v) {
                 if(mTask.getTitle()!=null){
                     TaskList.getInstance(getActivity()).addTask(mTask,mUserId);
-                    getActivity().finish();
+                    getTargetFragment().onResume();
+                    getDialog().dismiss();
                 }else {
                     Toast.makeText(getActivity(), "You should fill title", Toast.LENGTH_SHORT).show();
                 }

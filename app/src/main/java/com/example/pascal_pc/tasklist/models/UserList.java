@@ -68,4 +68,32 @@ public class UserList {
         values.put(TaskDbSchema.UserTable.Col.USER_ID, user.getUserId().toString());
         return values;
     }
+    public boolean checkUser(String userName){
+        String WhereClause = TaskDbSchema.UserTable.Col.USER + " =? ";
+        String[] WhereArgs = new String[]{userName};
+
+        Cursor cursor = mDataBase.query(
+                TaskDbSchema.UserTable.NAME,
+                null,
+                WhereClause,
+                WhereArgs,
+                null,
+                null,
+                null,
+                null);
+
+        try {
+            if (cursor.getCount() == 0) {
+                return false;
+            }
+            cursor.moveToFirst();
+
+            if (cursor.getString(cursor.getColumnIndexOrThrow(TaskDbSchema.UserTable.Col.USER)).equals(userName)) {
+                return true;
+            }
+        } finally {
+            cursor.close();
+        }
+        return false;
+    }
 }
