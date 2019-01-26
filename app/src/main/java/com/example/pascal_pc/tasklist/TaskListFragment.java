@@ -2,7 +2,6 @@ package com.example.pascal_pc.tasklist;
 
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -34,7 +33,7 @@ import java.util.List;
 public class TaskListFragment extends Fragment {
 
     private static final String EXTRA_POSITION = "com.example.pascal_pc.tasklist.position";
-    private static final String EXTRA_USER_ID = "user_id";
+    private static final String EXTRA_USER_NAME = "user_name";
 
     private RecyclerView mRecyclerView;
     private ImageView mMsgImgView;
@@ -42,13 +41,13 @@ public class TaskListFragment extends Fragment {
     protected FloatingActionButton mAddFab;
 
     private int mCurrentPosition;
-    private String mUserId;
+    private String mUserName;
 
-    public static TaskListFragment newInstance(int position, String userId) {
+    public static TaskListFragment newInstance(int position, String userName) {
 
         Bundle args = new Bundle();
         args.putInt(EXTRA_POSITION, position);
-        args.putString(EXTRA_USER_ID, userId);
+        args.putString(EXTRA_USER_NAME, userName);
 
         TaskListFragment fragment = new TaskListFragment();
         fragment.setArguments(args);
@@ -64,7 +63,7 @@ public class TaskListFragment extends Fragment {
 
         setHasOptionsMenu(true);
         mCurrentPosition = getArguments().getInt(EXTRA_POSITION);
-        mUserId = getArguments().getString(EXTRA_USER_ID);
+        mUserName = getArguments().getString(EXTRA_USER_NAME);
     }
 
     @SuppressLint({"RestrictedApi", "WrongViewCast"})
@@ -81,20 +80,13 @@ public class TaskListFragment extends Fragment {
         mAddFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent intent = CreateNewTaskActivity.newIntent(getActivity(),mUserId);
-//                startActivity(intent);
 
-                FragmentManager fragmentManager=getFragmentManager();
-                DialogFragment fragment=CreateNewTaskFragment.newInstance(mUserId);
-                fragment.setTargetFragment(TaskListFragment.this,0);
-                fragment.show(fragmentManager,"tag");
+                FragmentManager fragmentManager = getFragmentManager();
+                DialogFragment fragment = CreateNewTaskFragment.newInstance(mUserName);
+                fragment.setTargetFragment(TaskListFragment.this, 0);
+                fragment.show(fragmentManager, "tag");
             }
         });
-        if (mCurrentPosition == 0) {
-            mAddFab.setVisibility(View.VISIBLE);
-        } else {
-            mAddFab.setVisibility(View.GONE);
-        }
 
         updateUI();
         return view;
@@ -116,7 +108,7 @@ public class TaskListFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.delete_all_tasks:
-                TaskList.getInstance(getActivity()).deleteAllTasks(mUserId);
+                TaskList.getInstance().deleteAllTasks(mUserName);
                 updateUI();
                 return true;
             default:
@@ -133,14 +125,13 @@ public class TaskListFragment extends Fragment {
 
     private void updateUI() {
 
-        List<Task> tasks = TaskList.getInstance(getActivity()).getTasks(mUserId);
+        List<Task> tasks = TaskList.getInstance().getTasks(mUserName);
 
-        if (mCurrentPosition == 0 && tasks.size() == 0) {
+        if (tasks.size() == 0) {
             mMsgImgView.setVisibility(View.VISIBLE);
         } else {
             mMsgImgView.setVisibility(View.GONE);
         }
-
         if (mTaskAdapter == null) {
             mTaskAdapter = new TaskAdapter(tasks);
             mRecyclerView.setAdapter(mTaskAdapter);
@@ -165,14 +156,11 @@ public class TaskListFragment extends Fragment {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-//                    // start activity detail
-//                    Intent intent = TaskDetailActivity.newIntent(getActivity(), mTask.getId(),mUserId);
-//                    startActivity(intent);
 
-                    FragmentManager fragmentManager=getFragmentManager();
-                    TaskDetailFragment fragment=TaskDetailFragment.newInstance(mTask.getId(),mUserId);
-                    fragment.setTargetFragment(TaskListFragment.this,0);
-                    fragment.show(fragmentManager,"tag");
+                    FragmentManager fragmentManager = getFragmentManager();
+                    TaskDetailFragment fragment = TaskDetailFragment.newInstance(mTask.getMId());
+                    fragment.setTargetFragment(TaskListFragment.this, 0);
+                    fragment.show(fragmentManager, "tag");
                     mTaskAdapter.notifyDataSetChanged();
                 }
             });
@@ -180,7 +168,7 @@ public class TaskListFragment extends Fragment {
 
         public void bind(Task task) {
             mTask = task;
-            String mTaskTitle = mTask.getTitle();
+            String mTaskTitle = mTask.getMTitle();
             mTitleTextView.setText(mTaskTitle);
             mFirstLetterOfTitle.setText(mTaskTitle.substring(0, 1).toUpperCase());
         }
@@ -199,25 +187,24 @@ public class TaskListFragment extends Fragment {
         }
 
         private List<Task> getTasks(List<Task> tasks) {
-            List<Task> tasks1 = new ArrayList<>();
+            List<Task> taskList = new ArrayList<>();
             if (mCurrentPosition == 0) {
-                tasks1 = tasks;
-            }
-            if (mCurrentPosition == 1) {
+                taskList = tasks;
+            }else if (mCurrentPosition == 1) {
                 for (int i = 0; i < tasks.size(); i++) {
-                    if (tasks.get(i).isDone()) {
-                        tasks1.add(tasks.get(i));
+                    if (tasks.get(i).getMDone()) {
+                        taskList.add(tasks.get(i));
+
+                    }
+                }
+            } else{
+                for (int i = 0; i < tasks.size(); i++) {
+                    if (!tasks.get(i).getMDone() ) {
+                        taskList.add(tasks.get(i));
                     }
                 }
             }
-            if (mCurrentPosition == 2) {
-                for (int i = 0; i < tasks.size(); i++) {
-                    if (tasks.get(i).isDone() == false) {
-                        tasks1.add(tasks.get(i));
-                    }
-                }
-            }
-            return tasks1;
+            return taskList;
         }
 
         @NonNull

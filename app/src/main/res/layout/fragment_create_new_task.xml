@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,24 +11,68 @@
     <!-- TODO: Update blank fragment layout -->
 
 
-    <EditText
-        android:id="@+id/title_editText"
+    <TextView
+        android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Title"
-        android:inputType="textPersonName" />
+        android:background="@color/colorPrimaryDark"
+        android:gravity="center"
+        android:padding="4dp"
+        android:text="Create new task"
+        android:textColor="@android:color/background_light"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
-    <EditText
-        android:id="@+id/descriptiion_editText"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Description:"
-        android:inputType="textPersonName"
-        android:paddingTop="50dp"
-        android:paddingBottom="50dp"
-        android:textSize="18sp" />
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageButton
+                android:id="@+id/task_photo"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@android:drawable/divider_horizontal_dim_dark" />
+
+            <ImageButton
+                android:id="@+id/camera_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_menu_camera" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/title_editText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Title"
+                android:inputType="textPersonName"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp" />
+
+            <EditText
+                android:id="@+id/descriptiion_editText"
+                android:layout_width="match_parent"
+                android:layout_height="90dp"
+                android:ems="10"
+                android:gravity="top"
+                android:hint="Description:"
+                android:inputType="textPersonName"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+    </LinearLayout>
 
     <CheckBox
         android:id="@+id/isDone_checkBox_newTask"
@@ -55,7 +100,7 @@
         android:id="@+id/create_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create"
+        android:text="Add"
         android:textAllCaps="false"
         android:textStyle="bold" />
 

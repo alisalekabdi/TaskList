@@ -2,23 +2,39 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.pascal_pc.tasklist">
 
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@drawable/app_img"
         android:label="@string/app_name"
         android:roundIcon="@drawable/app_img"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".TaskPagerActivity"></activity>
-        <activity android:name=".LogInActivity">
+        <activity android:name=".TaskPagerActivity">
 
+        </activity>
+        <activity android:name=".LogInActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".ResgisterActivity"></activity>
+        <provider
+            android:authorities="com.example.pascal_pc.tasklist.fileprovider"
+            android:name="android.support.v4.content.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/files">
+            </meta-data>
+        </provider>
     </application>
 
 </manifest>

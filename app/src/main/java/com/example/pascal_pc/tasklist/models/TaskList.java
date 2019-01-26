@@ -1,165 +1,76 @@
 package com.example.pascal_pc.tasklist.models;
 
-import android.content.ContentValues;
+
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
 
-import com.example.pascal_pc.tasklist.datdbase.TaskBaseHelper;
-import com.example.pascal_pc.tasklist.datdbase.TaskDbSchema;
+import com.example.pascal_pc.tasklist.App;
 
-import java.util.ArrayList;
-import java.util.Date;
+import org.greenrobot.greendao.query.QueryBuilder;
+
+import java.io.File;
 import java.util.List;
-import java.util.UUID;
+
 
 public class TaskList {
 
     private static TaskList instance;
-    private SQLiteDatabase mDataBase;
-    private Context mContext;
+    private TaskDao mTaskDao = (App.getApp()).getDaoSession().getTaskDao();
 
 
-    private TaskList(Context context) {
-        mContext = context.getApplicationContext();
-        mDataBase = new TaskBaseHelper(context).getWritableDatabase();
+    private TaskList() {
+
     }
 
-    public void addTask(Task task, String userId) {
-        ContentValues values = getContentValues(task, userId);
-        mDataBase.insert(TaskDbSchema.TaskTable.NAME, null, values);
+    public void addTask(Task task) {
+        mTaskDao.insert(task);
     }
 
-    public void removeTask(Task task, String userId) {
-        String WhereClause = TaskDbSchema.TaskTable.Col.UUID + " =? AND " + TaskDbSchema.TaskTable.Col.USERID + " =? ";
-        String[] WhereArgs = new String[]{task.getId().toString(), userId};
-        mDataBase.delete(TaskDbSchema.TaskTable.NAME, WhereClause, WhereArgs);
+    public void removeTask(Task task) {
+        mTaskDao.delete(task);
     }
 
-    public static TaskList getInstance(Context context) {
+    public static TaskList getInstance() {
         if (instance == null)
-            instance = new TaskList(context);
+            instance = new TaskList();
 
         return instance;
     }
 
-    public List<Task> getTasks(String userId) {
-        List<Task> tasks = new ArrayList<>();
-        String WhereClause = TaskDbSchema.TaskTable.Col.USERID + " =? ";
-        String[] WhereArgs = new String[]{userId};
-        Cursor cursor = mDataBase.query(
-                TaskDbSchema.TaskTable.NAME,
-                null,
-                WhereClause,
-                WhereArgs,
-                null,
-                null,
-                null,
-                null);
-
-        try {
-            if (cursor.getCount() == 0) {
-                return tasks;
-            }
-            cursor.moveToFirst();
-
-            while (!cursor.isAfterLast()) {
-                UUID uuid = UUID.fromString(cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.UUID)));
-                String title = cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.TITLE));
-                String description = cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DESCRIPTION));
-                Date date = new Date(cursor.getLong(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DATE)));
-                boolean isDone = cursor.getInt(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DONE)) != 0;
-
-                Task task = new Task();
-                task.setId(uuid);
-                task.setTitle(title);
-                task.setDescription(description);
-                task.setDate(date);
-                task.setDone(isDone);
-
-                tasks.add(task);
-                cursor.moveToNext();
-            }
-        } finally {
-            cursor.close();
-        }
+    public List<Task> getTasks(String userName) {
+        User user = UserList.getInstance().getUser(userName);
+        List<Task> tasks = mTaskDao.queryBuilder()
+                .where(TaskDao.Properties.MUserId.eq(user.getMUserId()))
+                .list();
         return tasks;
     }
 
-    public Task getTask(UUID id, String userId) {
-        String WhereClause = TaskDbSchema.TaskTable.Col.UUID + " =? AND " + TaskDbSchema.TaskTable.Col.USERID + " =? ";
-        String[] WhereArgs = new String[]{id.toString(), userId};
+    public Task getTask(Long id) {
+        return mTaskDao.load(id);
+    }
 
-        Cursor cursor = mDataBase.query(
-                TaskDbSchema.TaskTable.NAME,
-                null,
-                WhereClause,
-                WhereArgs,
-                null,
-                null,
-                null,
-                null);
 
-        try {
-            if (cursor.getCount() == 0) {
-                return null;
-            }
+    public void update(Task task) {
+        mTaskDao.update(task);
+    }
 
-            cursor.moveToFirst();
-            UUID uuid = UUID.fromString(cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.UUID)));
-            String title = cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.TITLE));
-            String description = cursor.getString(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DESCRIPTION));
-            Date date = new Date(cursor.getLong(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DATE)));
-            boolean isDone = cursor.getInt(cursor.getColumnIndex(TaskDbSchema.TaskTable.Col.DONE)) != 0;
 
-            Task task = new Task();
-            task.setId(uuid);
-            task.setTitle(title);
-            task.setDescription(description);
-            task.setDate(date);
-            task.setDone(isDone);
-
-            return task;
-        } finally {
-            cursor.close();
+    public void deleteAllTasks(String userName) {
+        User user = UserList.getInstance().getUser(userName);
+        QueryBuilder<Task> queryBuilder = mTaskDao.queryBuilder();
+        queryBuilder.where(TaskDao.Properties.MUserId.eq(user.getMUserId()));
+        List<Task> tasks = queryBuilder.list();
+        for (Task task : tasks) {
+            mTaskDao.delete(task);
         }
     }
-
-    public void update(Task task, String userId) {
-        ContentValues values = getContentValues(task, userId);
-        String WhereClause = TaskDbSchema.TaskTable.Col.UUID + " =? AND " + TaskDbSchema.TaskTable.Col.USERID + " =? ";
-        String[] WhereArgs = new String[]{task.getId().toString(), userId};
-        mDataBase.update(TaskDbSchema.TaskTable.NAME, values, WhereClause, WhereArgs);
-    }
-
-    public ContentValues getContentValues(Task task, String userId) {
-        ContentValues values = new ContentValues();
-        values.put(TaskDbSchema.TaskTable.Col.USERID, userId);
-        values.put(TaskDbSchema.TaskTable.Col.UUID, task.getId().toString());
-        values.put(TaskDbSchema.TaskTable.Col.TITLE, task.getTitle());
-        values.put(TaskDbSchema.TaskTable.Col.DESCRIPTION, task.getDescription());
-        values.put(TaskDbSchema.TaskTable.Col.DATE, task.getDate().getTime());
-        values.put(TaskDbSchema.TaskTable.Col.DONE, task.isDone() ? 1 : 0);
-        return values;
-    }
-
-    public void deleteAllTasks(String userId) {
-        String whereClause = TaskDbSchema.TaskTable.Col.USERID + " =? ";
-        String[] whereArgs = new String[]{userId};
-        mDataBase.delete(TaskDbSchema.TaskTable.NAME, whereClause, whereArgs);
-    }
-
-    public void updateGuestTask(String userId) {
-        List<Task> tasks = getTasks("null");
-        String WhereClause =  TaskDbSchema.TaskTable.Col.USERID + " =? ";
-        String[] WhereArgs = new String[]{ "null"};
-        Task task;
-        for (int i = 0; i < tasks.size(); i++) {
-            task=tasks.get(i);
-            ContentValues values=getContentValues(task, userId);
-            mDataBase.update(TaskDbSchema.TaskTable.NAME,values,WhereClause,WhereArgs);
+    public File getPhotoFile(Context context,Task task) {
+        Context mContext = context.getApplicationContext();
+        File filesDir = mContext.getFilesDir();
+        if(task.getMPhotoAddress() != null){
+            return new File(task.getMPhotoAddress());
+        }else{
+            return new File(filesDir, task.getPhotoName());
         }
-
     }
-
 }

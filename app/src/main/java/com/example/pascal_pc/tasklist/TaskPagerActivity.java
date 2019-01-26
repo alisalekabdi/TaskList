@@ -16,11 +16,11 @@ import com.example.pascal_pc.tasklist.models.TaskList;
 
 public class TaskPagerActivity extends AppCompatActivity {
 
-    private static String EXTRA_USER_ID="user_id.com.example.pascal_pc.tasklist";
+    private static String EXTRA_USER_NAME ="user_id.com.example.pascal_pc.tasklist";
 
-    public static Intent newIntent(Context context,String userId){
+    public static Intent newIntent(Context context, String userName){
         Intent intent=new Intent(context,TaskPagerActivity.class);
-        intent.putExtra(EXTRA_USER_ID,userId);
+        intent.putExtra(EXTRA_USER_NAME,userName);
         return intent;
     }
 
@@ -28,7 +28,7 @@ public class TaskPagerActivity extends AppCompatActivity {
     public static final int MODE_DONE = 1;
     public static final int MODE_UNDONE = 2;
 
-    private static  String mUserID;
+    private  String mUserName;
 
     private ViewPager mViewPager;
     private TabLayout mTaskTabLayout;
@@ -39,7 +39,7 @@ public class TaskPagerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_pager);
 
-        mUserID=getIntent().getStringExtra(EXTRA_USER_ID);
+        mUserName=getIntent().getStringExtra(EXTRA_USER_NAME);
 
         mViewPager=findViewById(R.id.task_view_pager);
         mTaskTabLayout=findViewById(R.id.tablayout_task_pager);
@@ -50,13 +50,13 @@ public class TaskPagerActivity extends AppCompatActivity {
             public Fragment getItem(int i) {
                 switch (i){
                     case MODE_ALL:
-                    return TaskListFragment.newInstance(0,mUserID);
+                    return TaskListFragment.newInstance(0,mUserName);
 
                     case MODE_DONE:
-                        return TaskListFragment.newInstance(1,mUserID);
+                        return TaskListFragment.newInstance(1,mUserName);
 
                     case MODE_UNDONE:
-                        return TaskListFragment.newInstance(2,mUserID);
+                        return TaskListFragment.newInstance(2,mUserName);
                 }
                 return null;
             }
@@ -79,7 +79,8 @@ public class TaskPagerActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         final int REQ_FOR_REGISTER = 1;
-        if (mUserID.equals("null")) {
+        final String GUEST_USER_NAME="guest";
+        if (mUserName.equals(GUEST_USER_NAME)) {
             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(TaskPagerActivity.this);
             alertBuilder.setTitle("Register");
             alertBuilder.setIcon(R.drawable.ic_delete);
@@ -96,7 +97,7 @@ public class TaskPagerActivity extends AppCompatActivity {
             alertBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    TaskList.getInstance(TaskPagerActivity.this).deleteAllTasks(mUserID);
+                    TaskList.getInstance().deleteAllTasks(GUEST_USER_NAME);
                     TaskPagerActivity.this.finish();
                 }
             });

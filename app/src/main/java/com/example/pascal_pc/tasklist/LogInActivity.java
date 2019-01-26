@@ -2,28 +2,26 @@ package com.example.pascal_pc.tasklist;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.pascal_pc.tasklist.models.TaskList;
 import com.example.pascal_pc.tasklist.models.User;
 import com.example.pascal_pc.tasklist.models.UserList;
 
 public class LogInActivity extends AppCompatActivity {
 
-    public static final String NULL_USER_ID = "null";
     private EditText mUserName;
     private EditText mPassword;
     private Button mlogin;
     private Button mSignup;
     private Button mGuset;
     private User mUser = new User();
+    private String GUEST = "guest";
 
     @SuppressLint("WrongViewCast")
     @Override
@@ -38,53 +36,24 @@ public class LogInActivity extends AppCompatActivity {
         mSignup = findViewById(R.id.signup_btn);
         mGuset = findViewById(R.id.geust_btn);
 
-        mUserName.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                mUser.setUserName(s.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-        mPassword.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                mUser.setPassword(s.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
 
         mlogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mUser.getUserName()!=null&&mUser.getPassword()!=null) {
-                    String userId = UserList.getInstance(LogInActivity.this).getUserId(mUser);
-                    if (userId != null) {
-                        Intent intent = TaskPagerActivity.newIntent(LogInActivity.this,userId);
+                String userName = mUserName.getText().toString();
+                String password = mPassword.getText().toString();
+
+                if (userName == null || password == null) {
+                    Toast.makeText(LogInActivity.this, "Fill blank", Toast.LENGTH_SHORT).show();
+                } else {
+                    try {
+                        mUser = UserList.getInstance().getUserLogin(userName, password);
+                        Intent intent = TaskPagerActivity.newIntent(LogInActivity.this, mUser.getMUserName());
                         startActivity(intent);
                         LogInActivity.this.finish();
-                    } else {
+                    } catch (Exception i) {
                         Toast.makeText(LogInActivity.this, "Invalid password or User Name !!", Toast.LENGTH_SHORT).show();
                     }
-                }else{
-                    Toast.makeText(LogInActivity.this, "Fill blank", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -92,18 +61,32 @@ public class LogInActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //start register fragment and record data
-                Intent intent = ResgisterActivity.newIntent(LogInActivity.this,0);
+                Intent intent = ResgisterActivity.newIntent(LogInActivity.this, 0);
                 startActivity(intent);
+                LogInActivity.this.finish();
             }
         });
         mGuset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                start Task pager activity
-                Intent intent=TaskPagerActivity.newIntent(LogInActivity.this,NULL_USER_ID);
-                startActivity(intent);
-                LogInActivity.this.finish();
+                try {
 
+                    if (UserList.getInstance().getUser(GUEST)!= null) {
+                        TaskList.getInstance().deleteAllTasks(GUEST);
+                        TaskList.getInstance().deleteAllTasks(GUEST);
+                        Intent intent = TaskPagerActivity.newIntent(LogInActivity.this, mUser.getMUserName());
+                        startActivity(intent);
+                    } else {
+                        mUser.setMUserName(GUEST);
+                        mUser.setMPassword(GUEST);
+                        UserList.getInstance().addUser(mUser);
+                        Intent intent = TaskPagerActivity.newIntent(LogInActivity.this, mUser.getMUserName());
+                        startActivity(intent);
+                    }
+                } finally {
+                    LogInActivity.this.finish();
+                }
             }
         });
     }

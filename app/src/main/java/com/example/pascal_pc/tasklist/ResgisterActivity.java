@@ -30,16 +30,16 @@ public class ResgisterActivity extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (fragmentManager.findFragmentById(R.id.fragment_container_register) == null) {
             fragmentManager.beginTransaction()
-                    .add(R.id.fragment_container_register, RegisterFragment.newInstance(mReqCode))
+                    .replace(R.id.fragment_container_register, RegisterFragment.newInstance(mReqCode))
                     .commit();
         }
     }
 
     @Override
     public void onBackPressed() {
-        if (mReqCode == 1) {
+        if (mReqCode == -1) {
             //null is id for guest user
-            TaskList.getInstance(this).deleteAllTasks("null");
+            TaskList.getInstance().deleteAllTasks("guest");
             this.finish();
         }
     }

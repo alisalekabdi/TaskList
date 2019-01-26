@@ -1,99 +1,50 @@
 package com.example.pascal_pc.tasklist.models;
 
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
-import com.example.pascal_pc.tasklist.datdbase.TaskBaseHelper;
-import com.example.pascal_pc.tasklist.datdbase.TaskDbSchema;
+import com.example.pascal_pc.tasklist.App;
+
+import org.greenrobot.greendao.query.QueryBuilder;
+
+import java.util.List;
 
 public class UserList {
     private static UserList instance;
-    private SQLiteDatabase mDataBase;
-    private Context mContext;
+    private UserDao mUserDao = (App.getApp()).getDaoSession().getUserDao();
 
-    private UserList(Context context) {
-        mContext = context.getApplicationContext();
-        mDataBase = new TaskBaseHelper(context).getWritableDatabase();
+
+    private UserList() {
+
     }
 
-    public static UserList getInstance(Context context) {
+    public static UserList getInstance() {
         if (instance == null)
-            instance = new UserList(context);
+            instance = new UserList();
 
         return instance;
     }
 
     public void addUser(User user) {
-        ContentValues values = getContentValues(user);
-        mDataBase.insert(TaskDbSchema.UserTable.NAME, null, values);
+        mUserDao.insert(user);
     }
 
-    public String getUserId(User user) {
-
-        String WhereClause = TaskDbSchema.UserTable.Col.USER + " =? ";
-        String[] WhereArgs = new String[]{user.getUserName()};
-        String userId = null;
-
-        Cursor cursor = mDataBase.query(
-                TaskDbSchema.UserTable.NAME,
-                null,
-                WhereClause,
-                WhereArgs,
-                null,
-                null,
-                null,
-                null);
-
-        try {
-            if (cursor.getCount() == 0) {
-                return userId;
-            }
-            cursor.moveToFirst();
-
-            if (cursor.getString(cursor.getColumnIndexOrThrow(TaskDbSchema.UserTable.Col.PASSWORD)).equals(user.getPassword())) {
-                userId = cursor.getString(cursor.getColumnIndex(TaskDbSchema.UserTable.Col.USER_ID));
-            }
-        } finally {
-            cursor.close();
-        }
-        return userId;
+    public void updateUser(User user) {
+        mUserDao.update(user);
     }
 
-    public ContentValues getContentValues(User user) {
-        ContentValues values = new ContentValues();
-        values.put(TaskDbSchema.UserTable.Col.USER, user.getUserName());
-        values.put(TaskDbSchema.UserTable.Col.PASSWORD, user.getPassword());
-        values.put(TaskDbSchema.UserTable.Col.USER_ID, user.getUserId().toString());
-        return values;
+    public User getUserLogin(String userName, String password) {
+        List<User> users = mUserDao.queryBuilder()
+                .where(UserDao.Properties.MUserName.eq(userName), UserDao.Properties.MPassword.eq(password))
+                .list();
+        User user = (users.size() > 0 ? users.get(0) : null);
+        return user;
     }
-    public boolean checkUser(String userName){
-        String WhereClause = TaskDbSchema.UserTable.Col.USER + " =? ";
-        String[] WhereArgs = new String[]{userName};
 
-        Cursor cursor = mDataBase.query(
-                TaskDbSchema.UserTable.NAME,
-                null,
-                WhereClause,
-                WhereArgs,
-                null,
-                null,
-                null,
-                null);
-
-        try {
-            if (cursor.getCount() == 0) {
-                return false;
-            }
-            cursor.moveToFirst();
-
-            if (cursor.getString(cursor.getColumnIndexOrThrow(TaskDbSchema.UserTable.Col.USER)).equals(userName)) {
-                return true;
-            }
-        } finally {
-            cursor.close();
-        }
-        return false;
+    public User getUser(String userName) {
+        QueryBuilder<User> qb = mUserDao.queryBuilder();
+        qb.where(UserDao.Properties.MUserName.eq(userName));
+//                .list();
+//        User user = (users.size() > 0 ? users.get(0) : null);
+        User user = qb.unique();
+        return user;
     }
 }

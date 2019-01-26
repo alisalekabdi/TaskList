@@ -1,8 +1,15 @@
 <resources>
-    <string name="app_name">NoteBook</string>
+    <string name="app_name"></string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="date_picker_title">Date of event:</string>
     <string name="time_picker_title">Time of event:</string>
+
+    <string name="task_report_subject">Task Share</string>
+    <string name="send_report">Share task report via</string>
+
+    <string name="task_report">The %1$s!
+        is created on %2$s. , %3$s and %4$s
+    </string>
 </resources>
