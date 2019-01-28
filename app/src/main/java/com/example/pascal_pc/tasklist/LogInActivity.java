@@ -74,7 +74,7 @@ public class LogInActivity extends AppCompatActivity {
 
                     if (UserList.getInstance().getUser(GUEST)!= null) {
                         TaskList.getInstance().deleteAllTasks(GUEST);
-                        TaskList.getInstance().deleteAllTasks(GUEST);
+                        mUser=UserList.getInstance().getUser(GUEST);
                         Intent intent = TaskPagerActivity.newIntent(LogInActivity.this, mUser.getMUserName());
                         startActivity(intent);
                     } else {

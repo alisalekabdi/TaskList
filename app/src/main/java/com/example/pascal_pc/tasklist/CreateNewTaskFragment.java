@@ -1,6 +1,7 @@
 package com.example.pascal_pc.tasklist;
 
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -36,6 +37,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 
 /**
@@ -47,10 +49,11 @@ public class CreateNewTaskFragment extends DialogFragment {
     private static final String DIALOG_TIME_TAG = "DialogTime";
     private static final int REQ_DATE_PICKER = 0;
     private static final int REQ_TIME_PICKER = 1;
-    private static final int REQ_PHOTOS = 2;
+    private static final int REQ_CAMERA = 2;
     private static final String EXTRA_USER_ID = "userId";
+    private Uri mImgUri;
 
-    private Button mCreateBtn;
+    private Button mAddBtn;
     private Button mDateBtn;
     private Button mTimeBtn;
     private EditText mTitleEditTxt;
@@ -87,10 +90,11 @@ public class CreateNewTaskFragment extends DialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//        mPhotoFile=TaskList.getInstance().getPhotoFile(getActivity());
         mUserName = getArguments().getString(EXTRA_USER_ID);
         mUserId = UserList.getInstance().getUser(mUserName).getMUserId();
         mTask = new Task(mUserId);
+
+//        mPhotoFile =TaskList.getInstance().getPhotoFile(getActivity(),mTask);
     }
 
     public CreateNewTaskFragment() {
@@ -106,7 +110,7 @@ public class CreateNewTaskFragment extends DialogFragment {
 
         mTitleEditTxt = view.findViewById(R.id.title_editText);
         mDescriptionEditTxt = view.findViewById(R.id.descriptiion_editText);
-        mCreateBtn = view.findViewById(R.id.create_btn);
+        mAddBtn = view.findViewById(R.id.create_btn);
         mDateBtn = view.findViewById(R.id.date_button_new_task);
         mTimeBtn = view.findViewById(R.id.time_button_new_task);
         mIsDoneCheckBox = view.findViewById(R.id.isDone_checkBox_newTask);
@@ -151,29 +155,28 @@ public class CreateNewTaskFragment extends DialogFragment {
                 mTask.setMDone(isChecked);
             }
         });
-//        mCameraBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent captureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//
-//                Uri uri = getPhotoFileUri();
-//                captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+        mCameraBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//                mImgUri = getPhotoFileUri();
+//                intent.putExtra(MediaStore.EXTRA_OUTPUT, mImgUri);
 //
 //                PackageManager packageManager = getActivity().getPackageManager();
 //                List<ResolveInfo> activities = packageManager.queryIntentActivities(
-//                        captureIntent,
+//                        intent,
 //                        PackageManager.MATCH_DEFAULT_ONLY);
 //
 //                for (ResolveInfo activity : activities) {
 //                    getActivity().grantUriPermission(
 //                            activity.activityInfo.packageName,
-//                            uri,
+//                            mImgUri,
 //                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 //                }
-//
-//                startActivityForResult(captureIntent, REQ_PHOTOS);
-//            }
-//        });
+//                startActivityForResult(intent, REQ_CAMERA);
+
+            }
+        });
         mDateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -191,7 +194,7 @@ public class CreateNewTaskFragment extends DialogFragment {
                 timePickerFragment.show(getFragmentManager(), DIALOG_TIME_TAG);
             }
         });
-        mCreateBtn.setOnClickListener(new View.OnClickListener() {
+        mAddBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!mTitleEditTxt.getText().toString().equals("")) {
@@ -204,6 +207,11 @@ public class CreateNewTaskFragment extends DialogFragment {
                             taskListFragment.onResume();
                         }
                     }
+                    if (mPhotoFile != null && mPhotoFile.exists()) {
+                        mTask.setMPhotoAddress(mPhotoFile.toString());
+                    }
+                    TaskList.getInstance().update(mTask);
+//                    mPhotoFile.delete();
                     getDialog().dismiss();
                 } else {
                     Toast.makeText(getActivity(), "You should fill title", Toast.LENGTH_SHORT).show();
@@ -219,9 +227,10 @@ public class CreateNewTaskFragment extends DialogFragment {
                 "com.example.pascal_pc.tasklist.fileprovider",
                 mPhotoFile);
     }
+    @SuppressLint("ResourceType")
     private void updatePhotoView() {
         if (mPhotoFile == null || !mPhotoFile.exists()) {
-            mTaskImg.setImageDrawable(null);
+            //set image view from drawable
         } else {
             Bitmap bitmap = PictureUtils.getScaledBitmap(
                     mPhotoFile.getPath(),
@@ -230,6 +239,7 @@ public class CreateNewTaskFragment extends DialogFragment {
             mTaskImg.setImageBitmap(bitmap);
         }
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -240,14 +250,15 @@ public class CreateNewTaskFragment extends DialogFragment {
             Date date = (Date) data.getSerializableExtra(TimePickerFragment.EXTRA_TIME);
             mTask.setMDate(date);
             mTimeBtn.setText(new SimpleDateFormat("kk:mm").format(date));
-        }else if (requestCode == REQ_DATE_PICKER) {
+        } else if (requestCode == REQ_DATE_PICKER) {
             Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
             mTask.setMDate(date);
             mDateBtn.setText(new SimpleDateFormat("EEE-d MMM-yyyy ").format(date));
-        }else if (requestCode == REQ_PHOTOS) {
-//            Uri uri = getPhotoFileUri();
-//            getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-//            updatePhotoView();
+        } else if (requestCode == REQ_CAMERA) {
+            mImgUri = getPhotoFileUri();
+            mTask.setMPhotoAddress(mPhotoFile.toString());
+            getActivity().revokeUriPermission(mImgUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
         }
     }
 

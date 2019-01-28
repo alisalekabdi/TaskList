@@ -13,6 +13,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 
 import com.example.pascal_pc.tasklist.models.TaskList;
+import com.example.pascal_pc.tasklist.models.User;
+import com.example.pascal_pc.tasklist.models.UserList;
 
 public class TaskPagerActivity extends AppCompatActivity {
 
@@ -98,6 +100,8 @@ public class TaskPagerActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     TaskList.getInstance().deleteAllTasks(GUEST_USER_NAME);
+                    User guestUser=UserList.getInstance().getUser(mUserName);
+                    UserList.getInstance().deleteUser(guestUser);
                     TaskPagerActivity.this.finish();
                 }
             });

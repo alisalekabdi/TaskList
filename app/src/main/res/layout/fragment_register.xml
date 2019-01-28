@@ -42,6 +42,7 @@
         android:id="@+id/register_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@android:color/darker_gray"
         android:gravity="center"
         android:text="Register"
         android:textSize="12pt" />

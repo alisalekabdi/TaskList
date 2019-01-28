@@ -73,12 +73,15 @@ public class RegisterFragment extends Fragment {
 
                 if (userName.equals("") || password.equals("") || confirmPassword.equals("")) {
                     mError = "You should fill blank !!!";
+                    showSnackBar();
                     return;
                 } else if (!password.equals(confirmPassword)) {
                     mError = "Password is incorrect !!";
+                    showSnackBar();
                     return;
                 } else if (UserList.getInstance().getUser(userName) != null) {
                     mError = userName + " Already has exist :|";
+                    showSnackBar();
                     return;
                 } else {
                     mUser.setMUserName(userName);
@@ -90,26 +93,30 @@ public class RegisterFragment extends Fragment {
                         startActivity(intent);
                         getActivity().finish();
                     } else {
-                        mUser=UserList.getInstance().getUser("guest");
-                        mUser.setMUserName(userName);
-                        mUser.setMPassword(password);
-                        UserList.getInstance().updateUser(mUser);
+                        User user=new User();
+                        user.setMUserName("guest");
+                        user.setMPassword("guest");
+                        UserList.getInstance().updateUser(mUser,user);
                         getActivity().finish();
                     }
                 }
-                final Snackbar snackbar = Snackbar.make(getView(), mError, Snackbar.LENGTH_INDEFINITE);
-                snackbar.setAction("OK", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        snackbar.dismiss();
-                    }
-                });
-                snackbar.setActionTextColor(getResources().getColor(R.color.colorAccent));
-                snackbar.show();
+
 
             }
         });
         return view;
+    }
+
+    private void showSnackBar() {
+        final Snackbar snackbar = Snackbar.make(getView(), mError, Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction("OK", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                snackbar.dismiss();
+            }
+        });
+        snackbar.setActionTextColor(getResources().getColor(R.color.colorAccent));
+        snackbar.show();
     }
 }
 

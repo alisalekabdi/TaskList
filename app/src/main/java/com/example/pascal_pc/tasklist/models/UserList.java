@@ -27,8 +27,9 @@ public class UserList {
         mUserDao.insert(user);
     }
 
-    public void updateUser(User user) {
+    public void updateUser(User updateUser,User user ) {
         mUserDao.update(user);
+//        mUserDao.insert(updateUser);
     }
 
     public User getUserLogin(String userName, String password) {
@@ -37,6 +38,10 @@ public class UserList {
                 .list();
         User user = (users.size() > 0 ? users.get(0) : null);
         return user;
+    }
+
+    public void deleteUser(User user) {
+        mUserDao.delete(user);
     }
 
     public User getUser(String userName) {
